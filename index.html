@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="compiled/src/styles/main.css">
+
+    <title>Title</title>
+</head>
+<body>
+
+<div style="position: absolute; top: 100px; left: 100px; width: 200px; height: 32px; background: red;"></div>
+
+<div id="dropdown-options" class="dropdown-options"></div>
+
+
+<script>
+    window.exports = {};
+</script>
+<script src="compiled/src/scripts/main.js"></script>
+<script>
+    var options = [
+        {
+            content: 'one'
+        },
+        {
+            content: 'two'
+        },
+        {
+            content: 'three'
+        },
+        {
+            content: 'four'
+        },
+        {
+            content: 'five'
+        },
+        {
+            content: 'six'
+        },
+        {
+            content: 'seven'
+        }
+    ];
+
+    var ddLocation = {
+        top: 100,
+        left: 100,
+        width: 200
+    };
+
+    var optionsHTML = new OptionsHTML({
+        screenEdgeIndent: 12
+    });
+
+    optionsHTML.open({
+        type: 'select',
+        options: options,
+        location: ddLocation,
+        selectedIndex: 5
+    });
+</script>
+
+</body>
+</html>
