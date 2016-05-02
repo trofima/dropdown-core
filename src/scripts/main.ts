@@ -29,13 +29,13 @@ export interface Option {
 export interface DropdownLocation {
     top:number,
     left:number,
-    width:number
+    width:number,
 }
 
 export interface Viewport {
     height:number,
     width:number,
-    edgeIndent:number
+    edgeIndent:number,
 }
 
 export interface OptionsLocation {
@@ -46,14 +46,14 @@ export interface OptionsLocation {
         width:number,
     },
 
-    scrollTop:number
+    scrollTop:number,
 }
 
 export interface OptionsSettings {
     viewport:Viewport,
     dropdownLocation:DropdownLocation,
     selectedOptionOffset:number,
-    optionListHeight:number
+    optionListHeight:number,
 }
 
 export class Dropdown {
@@ -167,8 +167,8 @@ export class Select {
         var top = this.calculateTop();
         var bottom = this.calculateBottom(top);
         var hasTopOverflow = this.hasTopOverflow(top);
-        var hasBottomOverflow = bottom < this.viewport.edgeIndent;
-        
+        var hasBottomOverflow = this.hasBottomOverflow(bottom);
+
         return {
             style: {
                 top: hasTopOverflow ? this.viewport.edgeIndent : top,
@@ -177,26 +177,30 @@ export class Select {
                 width: this.dropdownLocation.width,
             },
 
-            scrollTop: hasTopOverflow ? this.calculateScrollTop(top) : 0
+            scrollTop: this.calculateScrollTop(top, hasTopOverflow),
         };
     }
 
-    private calculateTop() {
+    private calculateTop():number {
         return this.dropdownLocation.top - this.selectedOptionOffset;
     }
 
-    private calculateBottom(top) {
+    private calculateBottom(top):number {
         return this.viewport.height - top - this.optionListHeight;
     }
+
+    private calculateScrollTop(top, hasTopOverflow):number {
+        return hasTopOverflow ? -top + this.viewport.edgeIndent : 0;
+    }
     
-    private hasTopOverflow(top) {
+    private hasTopOverflow(top):boolean {
         return top < this.viewport.edgeIndent;
     }
-    
-    private calculateScrollTop(top) {
-        return -top + this.viewport.edgeIndent;
-    }
 
+    private hasBottomOverflow(bottom):boolean {
+        return bottom < this.viewport.edgeIndent;
+    }
+    
     private viewport:Viewport;
     private dropdownLocation:DropdownLocation;
     private selectedOptionOffset:number;

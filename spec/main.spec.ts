@@ -133,6 +133,32 @@ describe(`Class Select.`, function() {
                     expect(this.location.style.bottom).toBe(10);
                 });
             });
+            
+            // describe(`both (top and bottom) case`, function() { // перші два теста - марні
+            //     beforeEach(function() {
+            //         var select = new Select(this.getSettings({
+            //             viewport: {
+            //                 height: 300,
+            //                 edgeIndent: 10
+            //             },
+            //
+            //             dropdownLocation: {top: 100},
+            //             selectedOptionOffset: 200,
+            //             optionListHeight: 500
+            //         }));
+            //
+            //         this.location = select.getLocation();
+            //     });
+            //    
+            //     it(`should set both sides to the predefined extrema positions`, function() {
+            //         expect(this.location.style.top).toBe(10);
+            //         expect(this.location.style.bottom).toBe(10);
+            //     });
+            //    
+            //     it(`should set 'scrollTop' depending on the selected option`, function() {
+            //         expect(this.location.scrollTop).toBe(110);
+            //     });
+            // });
         });
         
         // TODO: випадок, дропдаун розташований заблизько до краю
