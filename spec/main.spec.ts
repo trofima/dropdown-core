@@ -114,8 +114,23 @@ describe(`Class Select.`, function() {
             });
 
             describe(`bottom case (with viewport edge indent) -`, function() {
-                it(`should `, function() {
+                beforeEach(function() {
+                    var select = new Select(this.getSettings({
+                        viewport: {
+                            height: 300,
+                            edgeIndent: 10
+                        },
 
+                        dropdownLocation: {top: 200},
+                        selectedOptionOffset: 0,
+                        optionListHeight: 200
+                    }));
+
+                    this.location = select.getLocation();
+                });
+
+                it(`should set 'bottom' to predefined extrema position`, function() {
+                    expect(this.location.style.bottom).toBe(10);
                 });
             });
         });

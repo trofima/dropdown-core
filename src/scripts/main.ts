@@ -165,12 +165,14 @@ export class Select {
 
     getLocation():OptionsLocation {
         var top = this.calculateTop();
+        var bottom = this.calculateBottom(top);
         var hasTopOverflow = this.hasTopOverflow(top);
+        var hasBottomOverflow = bottom < this.viewport.edgeIndent;
         
         return {
             style: {
                 top: hasTopOverflow ? this.viewport.edgeIndent : top,
-                bottom: this.calculateBottom(top),
+                bottom: hasBottomOverflow ? this.viewport.edgeIndent: bottom,
                 left: this.dropdownLocation.left,
                 width: this.dropdownLocation.width,
             },
