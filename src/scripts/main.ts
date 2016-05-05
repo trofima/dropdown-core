@@ -51,13 +51,7 @@ export interface DropdownSettings {
 }
 
 export interface OptionsLocation {
-    style:{
-        top:number,
-        bottom:number,
-        left:number,
-        width:number,
-    },
-
+    boundingRectangle: BoundingRectangle,
     scrollTop:number,
 }
 
@@ -141,8 +135,8 @@ export class Options {
 
         var location = this.options.getLocation();
 
-        for (var name in location.style) {
-            this.node.querySelector('.options').style.setProperty(name, location.style[name] + 'px');
+        for (var name in location.boundingRectangle) {
+            this.node.querySelector('.options').style.setProperty(name, location.boundingRectangle[name] + 'px');
         }
         
         this.getOptionListNode().scrollTop = location.scrollTop;
@@ -201,7 +195,7 @@ export class Select {
         }
         
         return {
-            style: {
+            boundingRectangle: {
                 top: top,
                 bottom: bottom,
                 left: this.button.left,

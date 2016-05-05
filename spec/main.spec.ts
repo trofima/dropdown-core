@@ -62,11 +62,11 @@ describe(`Class Select.`, function() {
             });
 
             it(`should get 'width' from dropdown location`, function(){
-                expect(this.location.style.width).toBe(100);
+                expect(this.location.boundingRectangle.width).toBe(100);
             });
 
             it(`should get 'left' position from dropdown location`, function(){
-                expect(this.location.style.left).toBe(100);
+                expect(this.location.boundingRectangle.left).toBe(100);
             });
         });
 
@@ -82,11 +82,11 @@ describe(`Class Select.`, function() {
             });
 
             it(`should calculate 'top' position`, function(){
-                expect(this.location.style.top).toBe(80);
+                expect(this.location.boundingRectangle.top).toBe(80);
             });
 
             it(`should calculate 'bottom' position`, function(){
-                expect(this.location.style.bottom).toBe(120);
+                expect(this.location.boundingRectangle.bottom).toBe(120);
             });
 
             it(`should set 'scrollTop' to '0'`, function() {
@@ -107,7 +107,7 @@ describe(`Class Select.`, function() {
                 });
 
                 it(`should set 'top' to predefined extrema position`, function() {
-                    expect(this.location.style.top).toBe(10);
+                    expect(this.location.boundingRectangle.top).toBe(10);
                 });
 
                 it(`should set 'scrollTop' depending on the selected option`, function() {
@@ -127,7 +127,7 @@ describe(`Class Select.`, function() {
                 });
 
                 it(`should set 'bottom' to predefined extrema position`, function() {
-                    expect(this.location.style.bottom).toBe(10);
+                    expect(this.location.boundingRectangle.bottom).toBe(10);
                 });
             });
 
@@ -144,7 +144,7 @@ describe(`Class Select.`, function() {
 
                     var location = select.getLocation();
                     
-                    expect(location.style.top).toBe(119);
+                    expect(location.boundingRectangle.top).toBe(119);
                 });
 
                 it(`should set 'bottom' to fit all options`, function() {
@@ -156,7 +156,7 @@ describe(`Class Select.`, function() {
 
                     var location = select.getLocation();
 
-                    expect(location.style.bottom).toBe(81);
+                    expect(location.boundingRectangle.bottom).toBe(81);
                 });
 
                 it(`
@@ -171,7 +171,7 @@ describe(`Class Select.`, function() {
 
                     var location = select.getLocation();
 
-                    expect(location.style.bottom).toBe(10);
+                    expect(location.boundingRectangle.bottom).toBe(10);
                 });
 
                 it(`should set 'top' as usual, is there is no overflow`, function() {
@@ -183,7 +183,7 @@ describe(`Class Select.`, function() {
 
                     var location = select.getLocation();
 
-                    expect(location.style.top).toBe(10);
+                    expect(location.boundingRectangle.top).toBe(10);
                 });
             });
 
@@ -200,7 +200,7 @@ describe(`Class Select.`, function() {
 
                     var location = select.getLocation();
                     
-                    expect(location.style.bottom).toBe(99);
+                    expect(location.boundingRectangle.bottom).toBe(99);
                 });
 
                 it(`should set 'top' to fit all options`, function() {
@@ -212,7 +212,7 @@ describe(`Class Select.`, function() {
 
                     var location = select.getLocation();
 
-                    expect(location.style.top).toBe(111);
+                    expect(location.boundingRectangle.top).toBe(111);
                 });
                 
                 it(`
@@ -227,7 +227,7 @@ describe(`Class Select.`, function() {
 
                     var location = select.getLocation();
 
-                    expect(location.style.top).toBe(10);
+                    expect(location.boundingRectangle.top).toBe(10);
                 });
                 
                 it(`should set 'bottom' as usual, is there is no overflow`, function() {
@@ -239,7 +239,7 @@ describe(`Class Select.`, function() {
 
                     var location = select.getLocation();
 
-                    expect(location.style.bottom).toBe(10);
+                    expect(location.boundingRectangle.bottom).toBe(10);
                 });
             });
             
@@ -260,8 +260,8 @@ describe(`Class Select.`, function() {
             //     });
             //    
             //     it(`should set both sides to the predefined extrema positions`, function() {
-            //         expect(this.location.style.top).toBe(10);
-            //         expect(this.location.style.bottom).toBe(10);
+            //         expect(this.location.boundingRectangle.top).toBe(10);
+            //         expect(this.location.boundingRectangle.bottom).toBe(10);
             //     });
             //    
             //     it(`should set 'scrollTop' depending on the selected option`, function() {
