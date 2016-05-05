@@ -1,12 +1,12 @@
 'use strict';
 
-import {Dropdown} from './../src/scripts/main';
-import {Options} from './../src/scripts/main';
+// import {Dropdown} from './../src/scripts/main';
+// import {Options} from './../src/scripts/main';
 import {Select} from './../src/scripts/main';
 
-describe(`Class Dropdown`, function() {});
+// describe(`Class Dropdown`, function() {});
 
-describe(`Class Options`, function() {});
+// describe(`Class Options`, function() {});
 
 describe(`Class Select.`, function() {
     beforeEach(function() {
@@ -14,31 +14,39 @@ describe(`Class Select.`, function() {
             viewport: {
                 height: screenHeight = 1000,
                 width: screenWidth = 1000,
-                edgeIndent: screenEdgeIndent = 0
+                edgeIndent: screenEdgeIndent = 0,
             } = {},
-            dropdownLocation: {
+            button: {
                 top: dropdownTop = 0,
                 left: dropdownLeft = 0,
-                width: dropdownWidth = 0
+                width: dropdownWidth = 0,
+                bottom: dropdownBottom = 0,
             } = {},
-            selectedOptionOffset = 0,
-            optionListHeight = 0
+            options: {
+                selectedOffset: selectedOffset = 0,
+                height: optionsHeight = 0,
+                minHeight: minHeight = 0,
+            } = {},
         }) => {
             return {
                 viewport: {
                     height: screenHeight,
                     width: screenWidth,
-                    edgeIndent: screenEdgeIndent
+                    edgeIndent: screenEdgeIndent,
                 },
 
-                dropdownLocation: {
+                button: {
                     top: dropdownTop,
                     left: dropdownLeft,
-                    width: dropdownWidth
+                    width: dropdownWidth,
+                    bottom: dropdownBottom,
                 },
 
-                selectedOptionOffset: selectedOptionOffset,
-                optionListHeight: optionListHeight
+                options: {
+                    selectedOffset: selectedOffset,
+                    height: optionsHeight,
+                    minHeight: minHeight,
+                },
             }
         };
     });
@@ -47,7 +55,7 @@ describe(`Class Select.`, function() {
         describe(`in any case -`, function() {
             beforeEach(function() {
                 var select = new Select(this.getSettings({
-                    dropdownLocation: {left: 100, width: 100},
+                    button: {left: 100, width: 100},
                 }));
 
                 this.location = select.getLocation();
@@ -66,9 +74,8 @@ describe(`Class Select.`, function() {
             beforeEach(function() {
                 var select = new Select(this.getSettings({
                     viewport: {height: 300},
-                    dropdownLocation: {top: 100},
-                    selectedOptionOffset: 20,
-                    optionListHeight: 100
+                    button: {top: 100},
+                    options: {selectedOffset: 20, height: 100},
                 }));
 
                 this.location = select.getLocation();
@@ -91,39 +98,29 @@ describe(`Class Select.`, function() {
             describe(`top case (with viewport edge indent) -`, function() {
                 beforeEach(function() {
                     var select = new Select(this.getSettings({
-                        viewport: {
-                            height: 300,
-                            edgeIndent: 10
-                        },
-
-                        dropdownLocation: {top: 100},
-                        selectedOptionOffset: 180,
-                        optionListHeight: 200
+                        viewport: {height: 300, edgeIndent: 10},
+                        button: {top: 100},
+                        options: {selectedOffset: 91, height: 200},
                     }));
 
                     this.location = select.getLocation();
                 });
 
-                it(`should set 'scrollTop' depending on the selected option`, function() {
-                    expect(this.location.scrollTop).toBe(90);
-                });
-                
                 it(`should set 'top' to predefined extrema position`, function() {
                     expect(this.location.style.top).toBe(10);
+                });
+
+                it(`should set 'scrollTop' depending on the selected option`, function() {
+                    expect(this.location.scrollTop).toBe(1);
                 });
             });
 
             describe(`bottom case (with viewport edge indent) -`, function() {
                 beforeEach(function() {
                     var select = new Select(this.getSettings({
-                        viewport: {
-                            height: 300,
-                            edgeIndent: 10
-                        },
-
-                        dropdownLocation: {top: 200},
-                        selectedOptionOffset: 0,
-                        optionListHeight: 200
+                        viewport: {height: 300, edgeIndent: 10},
+                        button: {top: 200},
+                        options: {selectedOffset: 0, height: 91},
                     }));
 
                     this.location = select.getLocation();
@@ -131,6 +128,118 @@ describe(`Class Select.`, function() {
 
                 it(`should set 'bottom' to predefined extrema position`, function() {
                     expect(this.location.style.bottom).toBe(10);
+                });
+            });
+
+            describe(`
+            top case and the option list height is going to be too small
+            (the dropdown is too close to the top edge of the screen)
+            `, function() {
+                it(`should set 'top' to be right under the bottom edge of the dropdown`, function() {
+                    var select = new Select(this.getSettings({
+                        viewport: {height: 300, edgeIndent: 10},
+                        button: {top: 99, bottom: 119},
+                        options: {selectedOffset: 90, height: 100, minHeight: 90},
+                    }));
+
+                    var location = select.getLocation();
+                    
+                    expect(location.style.top).toBe(119);
+                });
+
+                it(`should set 'bottom' to fit all options`, function() {
+                    var select = new Select(this.getSettings({
+                        viewport: {height: 300, edgeIndent: 10},
+                        button: {top: 99, bottom: 119},
+                        options: {selectedOffset: 90, height: 100, minHeight: 90},
+                    }));
+
+                    var location = select.getLocation();
+
+                    expect(location.style.bottom).toBe(81);
+                });
+
+                it(`
+                should set 'bottom' to predefined extrema, 
+                if after changing top option list have gotten bottom overflow
+                `, function() {
+                    var select = new Select(this.getSettings({
+                        viewport: {height: 300, edgeIndent: 10},
+                        button: {top: 99, bottom: 120},
+                        options: {selectedOffset: 90, height: 171, minHeight: 90},
+                    }));
+
+                    var location = select.getLocation();
+
+                    expect(location.style.bottom).toBe(10);
+                });
+
+                it(`should set 'top' as usual, is there is no overflow`, function() {
+                    var select = new Select(this.getSettings({
+                        viewport: {height: 300, edgeIndent: 10},
+                        button: {top: 11, bottom: 31},
+                        options: {selectedOffset: 1, height: 100, minHeight: 90},
+                    }));
+
+                    var location = select.getLocation();
+
+                    expect(location.style.top).toBe(10);
+                });
+            });
+
+            describe(`
+            bottom case and the option list height is going to be too small
+            (the dropdown is too close to the bottom edge of the screen)
+            `, function() {
+                it(`should set 'bottom' to be right upon the top edge of the dropdown`, function() {
+                    var select = new Select(this.getSettings({
+                        viewport: {height: 300, edgeIndent: 10},
+                        button: {top: 201, bottom: 221},
+                        options: {selectedOffset: 0, height: 90, minHeight: 90},
+                    }));
+
+                    var location = select.getLocation();
+                    
+                    expect(location.style.bottom).toBe(99);
+                });
+
+                it(`should set 'top' to fit all options`, function() {
+                    var select = new Select(this.getSettings({
+                        viewport: {height: 300, edgeIndent: 10},
+                        button: {top: 201, bottom: 221},
+                        options: {selectedOffset: 0, height: 90, minHeight: 90},
+                    }));
+
+                    var location = select.getLocation();
+
+                    expect(location.style.top).toBe(111);
+                });
+                
+                it(`
+                should set 'top' to predefined extrema, 
+                if after changing bottom option list have gotten top overflow
+                `, function() {
+                    var select = new Select(this.getSettings({
+                        viewport: {height: 300, edgeIndent: 10},
+                        button: {top: 200, bottom: 220},
+                        options: {selectedOffset: 0, height: 191, minHeight: 90},
+                    }));
+
+                    var location = select.getLocation();
+
+                    expect(location.style.top).toBe(10);
+                });
+                
+                it(`should set 'bottom' as usual, is there is no overflow`, function() {
+                    var select = new Select(this.getSettings({
+                        viewport: {height: 300, edgeIndent: 10},
+                        button: {top: 269, bottom: 289},
+                        options: {selectedOffset: 79, height: 100, minHeight: 90},
+                    }));
+
+                    var location = select.getLocation();
+
+                    expect(location.style.bottom).toBe(10);
                 });
             });
             
@@ -142,8 +251,8 @@ describe(`Class Select.`, function() {
             //                 edgeIndent: 10
             //             },
             //
-            //             dropdownLocation: {top: 100},
-            //             selectedOptionOffset: 200,
+            //             button: {top: 100},
+            //             options: {selectedOffset: 20},200,
             //             optionListHeight: 500
             //         }));
             //
@@ -160,7 +269,5 @@ describe(`Class Select.`, function() {
             //     });
             // });
         });
-        
-        // TODO: випадок, дропдаун розташований заблизько до краю
     });
 });

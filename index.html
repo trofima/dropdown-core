@@ -8,7 +8,7 @@
 </head>
 <body>
 
-<div style="position: absolute; top: 100px; left: 100px; width: 200px; height: 32px; background: red;"></div>
+<div id="dd" style="position: absolute; top: 100px; left: 100px; width: 200px; height: 32px; background: red;"></div>
 
 <div id="dropdown-options" class="dropdown-options"></div>
 
@@ -49,83 +49,91 @@
         {
             content: 'ten'
         },
-        {
-            content: 'one'
-        },
-        {
-            content: 'two'
-        },
-        {
-            content: 'three'
-        },
-        {
-            content: 'four'
-        },
-        {
-            content: 'five'
-        },
-        {
-            content: 'six'
-        },
-        {
-            content: 'seven'
-        },
-        {
-            content: 'eight'
-        },
-        {
-            content: 'nine'
-        },
-        {
-            content: 'ten'
-        },
-        {
-            content: 'one'
-        },
-        {
-            content: 'two'
-        },
-        {
-            content: 'three'
-        },
-        {
-            content: 'four'
-        },
-        {
-            content: 'five'
-        },
-        {
-            content: 'six'
-        },
-        {
-            content: 'seven'
-        },
-        {
-            content: 'eight'
-        },
-        {
-            content: 'nine'
-        },
-        {
-            content: 'ten'
-        }
+//        {
+//            content: 'one'
+//        },
+//        {
+//            content: 'two'
+//        },
+//        {
+//            content: 'three'
+//        },
+//        {
+//            content: 'four'
+//        },
+//        {
+//            content: 'five'
+//        },
+//        {
+//            content: 'six'
+//        },
+//        {
+//            content: 'seven'
+//        },
+//        {
+//            content: 'eight'
+//        },
+//        {
+//            content: 'nine'
+//        },
+//        {
+//            content: 'ten'
+//        },
+//        {
+//            content: 'one'
+//        },
+//        {
+//            content: 'two'
+//        },
+//        {
+//            content: 'three'
+//        },
+//        {
+//            content: 'four'
+//        },
+//        {
+//            content: 'five'
+//        },
+//        {
+//            content: 'six'
+//        },
+//        {
+//            content: 'seven'
+//        },
+//        {
+//            content: 'eight'
+//        },
+//        {
+//            content: 'nine'
+//        },
+//        {
+//            content: 'ten'
+//        }
     ];
 
     var ddLocation = {
         top: 100,
         left: 100,
-        width: 200
+        width: 200,
+        bottom: 132
     };
 
+    var dd = document.getElementById('dd');
+
+    for (var name in ddLocation) {
+        dd.style.setProperty(name, ddLocation[name] + 'px');
+    }
+
     var optionsHTML = new OptionsHTML({
-        screenEdgeIndent: 12
+        screenEdgeIndent: 12,
+        minHeight: 180
     });
 
     optionsHTML.open({
         type: 'select',
         options: options,
         location: ddLocation,
-        selectedIndex: 7
+        selectedIndex: 4
     });
 </script>
 

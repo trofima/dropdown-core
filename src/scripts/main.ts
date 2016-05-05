@@ -22,20 +22,32 @@
 //         </div>
 //     </section>`;
 
-export interface Option {
-
-}
-
-export interface DropdownLocation {
-    top:number,
-    left:number,
-    width:number,
-}
-
+// export interface Option {
+//
+// }
 export interface Viewport {
     height:number,
     width:number,
     edgeIndent:number,
+}
+
+export interface BoundingRectangle {
+    left:number,
+    top:number,
+    bottom:number,
+    width:number,
+}
+
+export interface OptionSettings {
+    height:number,
+    minHeight:number,
+    selectedOffset:number,
+}
+
+export interface DropdownSettings {
+    viewport:Viewport,
+    button:BoundingRectangle,
+    options:OptionSettings,
 }
 
 export interface OptionsLocation {
@@ -49,78 +61,31 @@ export interface OptionsLocation {
     scrollTop:number,
 }
 
-export interface OptionsSettings {
-    viewport:Viewport,
-    dropdownLocation:DropdownLocation,
-    selectedOptionOffset:number,
-    optionListHeight:number,
-}
-
-export class Dropdown {
-    constructor() {
-    }
-
-    open() {
-    }
-
-    close() {
-    }
-
-    private options:Array<Option>;
-}
-
-export class Options {
-    constructor({node, screenEdgeIndent}) {
-        this.node = node;
-        this.screenEdgeIndent = screenEdgeIndent;
-    }
-
-    protected open({type, location, selectedIndex}) {
-        this.options = new Select({
-            viewport: {
-                height: document.documentElement.clientHeight,
-                width: document.documentElement.clientWidth,
-                edgeIndent: this.screenEdgeIndent
-            },
-
-            dropdownLocation: location,
-            selectedOptionOffset: this.getOptionNode(selectedIndex).offsetTop,
-            optionListHeight: this.getOptionListNode().offsetHeight,
-        });
-
-        var location = this.options.getLocation();
-
-        for (var name in location.style) {
-            this.node.querySelector('.options').style.setProperty(name, location.style[name] + 'px');
-        }
-        
-        this.getOptionListNode().scrollTop = location.scrollTop;
-    };
-
-    getOptionListNode() {
-        return this.node.querySelector('.list');
-    }
-
-    getOptionNode(index) {
-        return this.node.querySelector('.list').querySelectorAll('.item')[index];
-    }
-
-    private node;
-    private screenEdgeIndent;
-    private options;
-}
+// export class Dropdown {
+//     constructor() {
+//     }
+//
+//     open() {
+//     }
+//
+//     close() {
+//     }
+//
+//     private options:Array<Option>;
+// }
 
 // OptionsHTML рендерить і віддає необхідні елементи в Options,
 // це забезпечить найбільший рівень інкапсуляції і розподіл відповідальності
 // (рендер (що), позиціонування-скрол...-все що в).
 
 export class OptionsHTML {
-    constructor({screenEdgeIndent}) {
+    constructor({screenEdgeIndent = 10, minHeight = 180}) {
         this.node = document.getElementById('dropdown-options');
         this.node.innerHTML = this.render();
         this.options = new Options({
             node: this.node,
-            screenEdgeIndent: screenEdgeIndent
+            screenEdgeIndent: screenEdgeIndent,
+            minHeight: minHeight
         });
     }
 
@@ -150,59 +115,108 @@ export class OptionsHTML {
     private options;
 }
 
+export class Options {
+    constructor({node, screenEdgeIndent, minHeight}) {
+        this.node = node;
+        this.screenEdgeIndent = screenEdgeIndent;
+        this.minHeight = minHeight;
+    }
+
+    protected open({type, location, selectedIndex}) {
+        this.options = new Select({
+            viewport: {
+                height: document.documentElement.clientHeight,
+                width: document.documentElement.clientWidth,
+                edgeIndent: this.screenEdgeIndent
+            },
+
+            options: {
+                height: this.getOptionListNode().offsetHeight,
+                minHeight: this.minHeight,
+                selectedOffset: this.getOptionNode(selectedIndex).offsetTop,
+            },
+
+            button: location,
+        });
+
+        var location = this.options.getLocation();
+
+        for (var name in location.style) {
+            this.node.querySelector('.options').style.setProperty(name, location.style[name] + 'px');
+        }
+        
+        this.getOptionListNode().scrollTop = location.scrollTop;
+    };
+
+    getOptionListNode() {
+        return this.node.querySelector('.list');
+    }
+
+    getOptionNode(index) {
+        return this.node.querySelector('.list').querySelectorAll('.item')[index];
+    }
+
+    private node;
+    private screenEdgeIndent;
+    private minHeight;
+    private options;
+}
+
 export class Select {
     constructor({
         viewport,
-        dropdownLocation,
-        selectedOptionOffset,
-        optionListHeight
-    }: OptionsSettings) {
+        button,
+        options,
+    }: DropdownSettings) {
         this.viewport = viewport;
-        this.dropdownLocation = dropdownLocation;
-        this.selectedOptionOffset = selectedOptionOffset;
-        this.optionListHeight = optionListHeight;
+        this.button = button;
+        this.options = options;
     }
 
     getLocation():OptionsLocation {
-        var top = this.calculateTop();
-        var bottom = this.calculateBottom(top);
-        var hasTopOverflow = this.hasTopOverflow(top);
-        var hasBottomOverflow = this.hasBottomOverflow(bottom);
+        var scrollTop = 0;
+        var top = this.button.top - this.options.selectedOffset;
+        var bottom = this.viewport.height - top - this.options.height;
 
+        if (this.hasOverflow(top)) {
+            scrollTop = -top + this.viewport.edgeIndent;
+            top = this.viewport.edgeIndent;
+
+            if (this.button.top - this.viewport.edgeIndent < this.options.minHeight) {
+                top = this.button.bottom;
+                bottom = this.viewport.height - top - this.options.height;
+            }
+        }
+        
+        if (this.hasOverflow(bottom)) {
+            bottom = this.viewport.edgeIndent;
+            
+            if (this.viewport.height - (this.button.bottom) - this.viewport.edgeIndent < this.options.minHeight) {
+                bottom = this.viewport.height - this.button.top;
+                top = this.button.top - this.options.height;
+
+                if (this.hasOverflow(top))
+                    top = this.viewport.edgeIndent;
+            }
+        }
+        
         return {
             style: {
-                top: hasTopOverflow ? this.viewport.edgeIndent : top,
-                bottom: hasBottomOverflow ? this.viewport.edgeIndent: bottom,
-                left: this.dropdownLocation.left,
-                width: this.dropdownLocation.width,
+                top: top,
+                bottom: bottom,
+                left: this.button.left,
+                width: this.button.width,
             },
 
-            scrollTop: this.calculateScrollTop(top, hasTopOverflow),
+            scrollTop: scrollTop,
         };
     }
 
-    private calculateTop():number {
-        return this.dropdownLocation.top - this.selectedOptionOffset;
+    private hasOverflow(offset):boolean {
+        return offset < this.viewport.edgeIndent;
     }
 
-    private calculateBottom(top):number {
-        return this.viewport.height - top - this.optionListHeight;
-    }
-
-    private calculateScrollTop(top, hasTopOverflow):number {
-        return hasTopOverflow ? -top + this.viewport.edgeIndent : 0;
-    }
-    
-    private hasTopOverflow(top):boolean {
-        return top < this.viewport.edgeIndent;
-    }
-
-    private hasBottomOverflow(bottom):boolean {
-        return bottom < this.viewport.edgeIndent;
-    }
-    
     private viewport:Viewport;
-    private dropdownLocation:DropdownLocation;
-    private selectedOptionOffset:number;
-    private optionListHeight:number;
+    private options; //TODO: interface
+    private button:BoundingRectangle;
 }
