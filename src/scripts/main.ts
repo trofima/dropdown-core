@@ -170,34 +170,18 @@ export class Select {
     getLocation():OptionsLocation {
         var scrollTop = 0;
         var top = this.button.top - this.options.selectedOffset;
-        var bottom = this.viewport.height - top - this.options.height;
+
+        var verticalPositions = this.getVerticalPosition();
+
 
         if (this.hasOverflow(top)) {
             scrollTop = -top + this.viewport.edgeIndent;
-            top = this.viewport.edgeIndent;
-
-            if (this.button.top - this.viewport.edgeIndent < this.options.minHeight) {
-                top = this.button.bottom;
-                bottom = this.viewport.height - top - this.options.height;
-            }
         }
-        
-        if (this.hasOverflow(bottom)) {
-            bottom = this.viewport.edgeIndent;
-            
-            if (this.viewport.height - (this.button.bottom) - this.viewport.edgeIndent < this.options.minHeight) {
-                bottom = this.viewport.height - this.button.top;
-                top = this.button.top - this.options.height;
 
-                if (this.hasOverflow(top))
-                    top = this.viewport.edgeIndent;
-            }
-        }
-        
         return {
             boundingRectangle: {
-                top: top,
-                bottom: bottom,
+                top: verticalPositions.top,
+                bottom: verticalPositions.bottom,
                 left: this.button.left,
                 width: this.button.width,
             },
@@ -206,11 +190,85 @@ export class Select {
         };
     }
 
+    private getVerticalPosition() {
+        var top = this.button.top - this.options.selectedOffset;
+        var bottom = this.viewport.height - top - this.options.height;
+        var hasTopOverflow = this.hasOverflow(top);
+        var hasBottomOverflow = this.hasOverflow(bottom);
+
+        if (hasTopOverflow && hasBottomOverflow) {
+            top = bottom = this.viewport.edgeIndent;
+        } else if (hasTopOverflow || hasBottomOverflow) {
+            if (hasTopOverflow)
+                return this.getOverflowedPosition('top', bottom);
+            else if (hasBottomOverflow)
+                return this.getOverflowedPosition('bottom', top);
+        }
+
+        return {
+            top: top,
+            bottom: bottom,
+        }
+    }
+
+    private getOverflowedPosition(currentSideName, oppositeSideValue) {
+        var sideMap = {
+            top: 'bottom',
+            bottom: 'top',
+        };
+
+        var sides = {
+            current: currentSideName,
+            opposite: sideMap[currentSideName],
+        };
+
+        var position = {
+            top: this.viewport.edgeIndent,
+            bottom: this.viewport.edgeIndent,
+        };
+
+        position[sides.opposite] = oppositeSideValue;
+
+        if (this.getButtonDistanceToEdge(sides.current) < this.options.minHeight) {
+            position[sides.current] = this[sides.current](sides.current);
+            position[sides.opposite] = this[sides.opposite](sides.current);
+
+            if (this.hasOverflow(position[sides.opposite]))
+                position[sides.opposite] = this.viewport.edgeIndent;
+        }
+
+        return position;
+    }
+
     private hasOverflow(offset):boolean {
         return offset < this.viewport.edgeIndent;
     }
 
+    private getButtonDistanceToEdge(edgeName) {
+        return edgeName === 'top'
+            ? this.button.top - this.viewport.edgeIndent
+            : this.viewport.height - this.button.top - this.viewport.edgeIndent;
+    }
+
+    private top(currentSide) {
+        var resultMap = {
+            top: this.button.bottom,
+            bottom: this.button.top - this.options.height
+        };
+
+        return resultMap[currentSide];
+    }
+
+    private bottom(currentSide) {
+        var resultMap = {
+            top: this.viewport.height - this.button.bottom - this.options.height,
+            bottom: this.viewport.height - this.button.top,
+        };
+
+        return resultMap[currentSide];
+    }
+
     private viewport:Viewport;
-    private options; //TODO: interface
+    private options:OptionSettings;
     private button:BoundingRectangle;
 }

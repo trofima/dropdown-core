@@ -221,8 +221,8 @@ describe(`Class Select.`, function() {
                 `, function() {
                     var select = new Select(this.getSettings({
                         viewport: {height: 300, edgeIndent: 10},
-                        button: {top: 200, bottom: 220},
-                        options: {selectedOffset: 0, height: 191, minHeight: 90},
+                        button: {top: 201, bottom: 221},
+                        options: {selectedOffset: 0, height: 192, minHeight: 90},
                     }));
 
                     var location = select.getLocation();
@@ -239,6 +239,24 @@ describe(`Class Select.`, function() {
 
                     var location = select.getLocation();
 
+                    expect(location.boundingRectangle.bottom).toBe(10);
+                });
+            });
+
+            describe(`
+            both overflow case 
+            and the dropdown is too close to the one of the screen edges
+            `, function() {
+                it(`should set 'top' and 'bottom' to predefined extrema`, function() {
+                    var select = new Select(this.getSettings({
+                        viewport: {height: 300, edgeIndent: 10},
+                        button: {top: 99, bottom: 201},
+                        options: {selectedOffset: 90, height: 282, minHeight: 90},
+                    }));
+
+                    var location = select.getLocation();
+
+                    expect(location.boundingRectangle.top).toBe(10);
                     expect(location.boundingRectangle.bottom).toBe(10);
                 });
             });
