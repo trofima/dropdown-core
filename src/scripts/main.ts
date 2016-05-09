@@ -55,6 +55,12 @@ export interface OptionsLocation {
     scrollTop:number,
 }
 
+// hack interface to prevent strange ts compiler bug with computed property names
+interface VerticalPositions {
+    top?:number,
+    bottom?:number,
+}
+
 // export class Dropdown {
 //     constructor() {
 //     }
@@ -185,7 +191,11 @@ export class Select {
         };
     }
 
-    private getVerticalPosition(baseTop, baseBottom) {
+    private viewport:Viewport;
+    private options:OptionSettings;
+    private button:BoundingRectangle;
+
+    private getVerticalPosition(baseTop, baseBottom):VerticalPositions {
         var hasTopOverflow = this.hasOverflow(baseTop);
         var hasBottomOverflow = this.hasOverflow(baseBottom);
 
@@ -206,7 +216,13 @@ export class Select {
         }
     }
 
-    private getOverflowedPosition(currentSideName, baseValues) {
+    private getScrollTop(baseTop):number {
+        return this.hasOverflow(baseTop)
+            ? -baseTop + this.viewport.edgeIndent
+            : 0;
+    }
+
+    private getOverflowedPosition(currentSideName, baseValues):VerticalPositions {
         var sideMirrorMap = {
             top: 'bottom',
             bottom: 'top',
@@ -214,64 +230,57 @@ export class Select {
 
         var oppositeSideName = sideMirrorMap[currentSideName];
 
-        if (this.getButtonDistanceToEdge(currentSideName) < this.options.minHeight) {
-            let currentSidePosition = this[currentSideName](currentSideName);//TODO: clean
-            let oppositeSidePosition = this[oppositeSideName](currentSideName);
-
-            return {
-                [currentSideName]: currentSidePosition,
-                [oppositeSideName]: this.hasOverflow(oppositeSidePosition)
-                    ? this.viewport.edgeIndent
-                    : oppositeSidePosition,
+        return this.getButtonDistanceToEdge(currentSideName) < this.options.minHeight
+            ? this.getSmallModePosition(currentSideName, oppositeSideName)
+            : {
+                [currentSideName]: this.viewport.edgeIndent,
+                [oppositeSideName]: baseValues[oppositeSideName],
             };
-        }
+    }
+
+    private getButtonDistanceToEdge(edgeName):number {
+        return edgeName === 'top'
+            ? this.button.top - this.viewport.edgeIndent
+            : this.viewport.height - this.button.top - this.viewport.edgeIndent;
+    }
+
+    private getSmallModePosition(currentSideName, oppositeSideName):VerticalPositions {
+        var currentSidePosition =
+            this['gerSmallMode' + this.capitalize(currentSideName)](currentSideName);
+        var oppositeSidePosition =
+            this['gerSmallMode' + this.capitalize(oppositeSideName)](currentSideName);
 
         return {
-            [currentSideName]: this.viewport.edgeIndent,
-            [oppositeSideName]: baseValues[oppositeSideName],
+            [currentSideName]: currentSidePosition,
+            [oppositeSideName]: this.hasOverflow(oppositeSidePosition)
+                ? this.viewport.edgeIndent
+                : oppositeSidePosition,
         };
+    }
+
+    private gerSmallModeTop(currentSide):number {
+        var calculateFor = {
+            top: () => this.button.bottom,
+            bottom: () => this.button.top - this.options.height
+        };
+
+        return calculateFor[currentSide]();
+    }
+
+    private gerSmallModeBottom(currentSide):number {
+        var calculateFor = {
+            top: () => this.viewport.height - this.button.bottom - this.options.height,
+            bottom: () => this.viewport.height - this.button.top,
+        };
+
+        return calculateFor[currentSide]();
     }
 
     private hasOverflow(offset):boolean {
         return offset < this.viewport.edgeIndent;
     }
 
-    private getButtonDistanceToEdge(edgeName) {
-        return edgeName === 'top'
-            ? this.button.top - this.viewport.edgeIndent
-            : this.viewport.height - this.button.top - this.viewport.edgeIndent;
+    private capitalize(str):string {
+        return str[0].toUpperCase() + str.slice(1);
     }
-
-    private getMovedPosition() {
-
-    }
-
-    private top(currentSide) { //TODO: rename
-        var resultMap = {
-            top: this.button.bottom,
-            bottom: this.button.top - this.options.height
-        };
-
-        return resultMap[currentSide];
-    }
-
-    private bottom(currentSide) { //TODO: rename
-        var resultMap = {
-            top: this.viewport.height - this.button.bottom - this.options.height,
-            bottom: this.viewport.height - this.button.top,
-        };
-
-        return resultMap[currentSide];
-    }
-
-    private getScrollTop(baseTop) {
-        if (this.hasOverflow(baseTop))
-            return -baseTop + this.viewport.edgeIndent;
-
-        return 0;
-    }
-
-    private viewport:Viewport;
-    private options:OptionSettings;
-    private button:BoundingRectangle;
 }
