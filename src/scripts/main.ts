@@ -168,15 +168,10 @@ export class Select {
     }
 
     getLocation():OptionsLocation {
-        var scrollTop = 0;
-        var top = this.button.top - this.options.selectedOffset;
+        var baseTop = this.button.top - this.options.selectedOffset;
+        var baseBottom = this.viewport.height - baseTop - this.options.height;
+        var verticalPositions = this.getVerticalPosition(baseTop, baseBottom);
 
-        var verticalPositions = this.getVerticalPosition();
-
-
-        if (this.hasOverflow(top)) {
-            scrollTop = -top + this.viewport.edgeIndent;
-        }
 
         return {
             boundingRectangle: {
@@ -186,58 +181,55 @@ export class Select {
                 width: this.button.width,
             },
 
-            scrollTop: scrollTop,
+            scrollTop: this.getScrollTop(baseTop),
         };
     }
 
-    private getVerticalPosition() {
-        var top = this.button.top - this.options.selectedOffset;
-        var bottom = this.viewport.height - top - this.options.height;
-        var hasTopOverflow = this.hasOverflow(top);
-        var hasBottomOverflow = this.hasOverflow(bottom);
+    private getVerticalPosition(baseTop, baseBottom) {
+        var hasTopOverflow = this.hasOverflow(baseTop);
+        var hasBottomOverflow = this.hasOverflow(baseBottom);
 
-        if (hasTopOverflow && hasBottomOverflow) {
-            top = bottom = this.viewport.edgeIndent;
-        } else if (hasTopOverflow || hasBottomOverflow) {
-            if (hasTopOverflow)
-                return this.getOverflowedPosition('top', bottom);
-            else if (hasBottomOverflow)
-                return this.getOverflowedPosition('bottom', top);
-        }
+        if (hasTopOverflow && hasBottomOverflow)
+            return {
+                top: this.viewport.edgeIndent,
+                bottom: this.viewport.edgeIndent,
+            };
+        else if (hasTopOverflow || hasBottomOverflow)
+            return this.getOverflowedPosition(hasTopOverflow ? 'top' : 'bottom', {
+                top: baseTop,
+                bottom: baseBottom,
+            });
 
         return {
-            top: top,
-            bottom: bottom,
+            top: baseTop,
+            bottom: baseBottom,
         }
     }
 
-    private getOverflowedPosition(currentSideName, oppositeSideValue) {
-        var sideMap = {
+    private getOverflowedPosition(currentSideName, baseValues) {
+        var sideMirrorMap = {
             top: 'bottom',
             bottom: 'top',
         };
 
-        var sides = {
-            current: currentSideName,
-            opposite: sideMap[currentSideName],
-        };
+        var oppositeSideName = sideMirrorMap[currentSideName];
 
-        var position = {
-            top: this.viewport.edgeIndent,
-            bottom: this.viewport.edgeIndent,
-        };
+        if (this.getButtonDistanceToEdge(currentSideName) < this.options.minHeight) {
+            let currentSidePosition = this[currentSideName](currentSideName);//TODO: clean
+            let oppositeSidePosition = this[oppositeSideName](currentSideName);
 
-        position[sides.opposite] = oppositeSideValue;
-
-        if (this.getButtonDistanceToEdge(sides.current) < this.options.minHeight) {
-            position[sides.current] = this[sides.current](sides.current);
-            position[sides.opposite] = this[sides.opposite](sides.current);
-
-            if (this.hasOverflow(position[sides.opposite]))
-                position[sides.opposite] = this.viewport.edgeIndent;
+            return {
+                [currentSideName]: currentSidePosition,
+                [oppositeSideName]: this.hasOverflow(oppositeSidePosition)
+                    ? this.viewport.edgeIndent
+                    : oppositeSidePosition,
+            };
         }
 
-        return position;
+        return {
+            [currentSideName]: this.viewport.edgeIndent,
+            [oppositeSideName]: baseValues[oppositeSideName],
+        };
     }
 
     private hasOverflow(offset):boolean {
@@ -250,7 +242,11 @@ export class Select {
             : this.viewport.height - this.button.top - this.viewport.edgeIndent;
     }
 
-    private top(currentSide) {
+    private getMovedPosition() {
+
+    }
+
+    private top(currentSide) { //TODO: rename
         var resultMap = {
             top: this.button.bottom,
             bottom: this.button.top - this.options.height
@@ -259,13 +255,20 @@ export class Select {
         return resultMap[currentSide];
     }
 
-    private bottom(currentSide) {
+    private bottom(currentSide) { //TODO: rename
         var resultMap = {
             top: this.viewport.height - this.button.bottom - this.options.height,
             bottom: this.viewport.height - this.button.top,
         };
 
         return resultMap[currentSide];
+    }
+
+    private getScrollTop(baseTop) {
+        if (this.hasOverflow(baseTop))
+            return -baseTop + this.viewport.edgeIndent;
+
+        return 0;
     }
 
     private viewport:Viewport;
