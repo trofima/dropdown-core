@@ -23,8 +23,12 @@ describe(`Class Select.`, function() {
                 bottom: dropdownBottom = 0,
             } = {},
             options: {
+                boundingRectangle: {
+                    height: optionsHeight = 0,
+                    top: optionsTop = 0,
+                    bottom: optionsBottom = 0,
+                } = {},
                 selectedOffset: selectedOffset = 0,
-                height: optionsHeight = 0,
                 minHeight: minHeight = 0,
             } = {},
         }) => {
@@ -43,8 +47,13 @@ describe(`Class Select.`, function() {
                 },
 
                 options: {
+                    boundingRectangle: {
+                        height: optionsHeight,
+                        top: optionsTop,
+                        bottom: optionsBottom,
+                    },
+
                     selectedOffset: selectedOffset,
-                    height: optionsHeight,
                     minHeight: minHeight,
                 },
             }
@@ -75,7 +84,7 @@ describe(`Class Select.`, function() {
                 var select = new Select(this.getSettings({
                     viewport: {height: 300},
                     button: {top: 100},
-                    options: {selectedOffset: 20, height: 100},
+                    options: {selectedOffset: 20, boundingRectangle: {height: 100}},
                 }));
 
                 this.location = select.getLocation();
@@ -94,13 +103,13 @@ describe(`Class Select.`, function() {
             });
         });
 
-        describe(`overflow`, function() {
+        describe(`overflow case - `, function() {
             describe(`top case (with viewport edge indent) -`, function() {
                 beforeEach(function() {
                     var select = new Select(this.getSettings({
                         viewport: {height: 300, edgeIndent: 10},
                         button: {top: 100},
-                        options: {selectedOffset: 91, height: 200},
+                        options: {selectedOffset: 91, boundingRectangle: {height: 200}},
                     }));
 
                     this.location = select.getLocation();
@@ -120,7 +129,7 @@ describe(`Class Select.`, function() {
                     var select = new Select(this.getSettings({
                         viewport: {height: 300, edgeIndent: 10},
                         button: {top: 200},
-                        options: {selectedOffset: 0, height: 91},
+                        options: {selectedOffset: 0, boundingRectangle: {height: 91}},
                     }));
 
                     this.location = select.getLocation();
@@ -139,7 +148,11 @@ describe(`Class Select.`, function() {
                     var select = new Select(this.getSettings({
                         viewport: {height: 300, edgeIndent: 10},
                         button: {top: 99, bottom: 119},
-                        options: {selectedOffset: 90, height: 100, minHeight: 90},
+                        options: {
+                            boundingRectangle: {height: 100},
+                            selectedOffset: 90,
+                            minHeight: 90
+                        },
                     }));
 
                     var location = select.getLocation();
@@ -151,7 +164,11 @@ describe(`Class Select.`, function() {
                     var select = new Select(this.getSettings({
                         viewport: {height: 300, edgeIndent: 10},
                         button: {top: 99, bottom: 119},
-                        options: {selectedOffset: 90, height: 100, minHeight: 90},
+                        options: {
+                            boundingRectangle: {height: 100},
+                            selectedOffset: 90,
+                            minHeight: 90
+                        },
                     }));
 
                     var location = select.getLocation();
@@ -166,7 +183,11 @@ describe(`Class Select.`, function() {
                     var select = new Select(this.getSettings({
                         viewport: {height: 300, edgeIndent: 10},
                         button: {top: 99, bottom: 120},
-                        options: {selectedOffset: 90, height: 171, minHeight: 90},
+                        options: {
+                            boundingRectangle: {height: 171},
+                            selectedOffset: 90,
+                            minHeight: 90
+                        },
                     }));
 
                     var location = select.getLocation();
@@ -178,7 +199,11 @@ describe(`Class Select.`, function() {
                     var select = new Select(this.getSettings({
                         viewport: {height: 300, edgeIndent: 10},
                         button: {top: 11, bottom: 31},
-                        options: {selectedOffset: 1, height: 100, minHeight: 90},
+                        options: {
+                            boundingRectangle: {height: 100},
+                            selectedOffset: 1,
+                            minHeight: 90
+                        },
                     }));
 
                     var location = select.getLocation();
@@ -195,7 +220,11 @@ describe(`Class Select.`, function() {
                     var select = new Select(this.getSettings({
                         viewport: {height: 300, edgeIndent: 10},
                         button: {top: 201, bottom: 221},
-                        options: {selectedOffset: 0, height: 90, minHeight: 90},
+                        options: {
+                            boundingRectangle: {height: 90},
+                            selectedOffset: 0,
+                            minHeight: 90
+                        },
                     }));
 
                     var location = select.getLocation();
@@ -207,7 +236,11 @@ describe(`Class Select.`, function() {
                     var select = new Select(this.getSettings({
                         viewport: {height: 300, edgeIndent: 10},
                         button: {top: 201, bottom: 221},
-                        options: {selectedOffset: 0, height: 90, minHeight: 90},
+                        options: {
+                            boundingRectangle: {height: 90},
+                            selectedOffset: 0,
+                            minHeight: 90
+                        },
                     }));
 
                     var location = select.getLocation();
@@ -222,7 +255,11 @@ describe(`Class Select.`, function() {
                     var select = new Select(this.getSettings({
                         viewport: {height: 300, edgeIndent: 10},
                         button: {top: 201, bottom: 221},
-                        options: {selectedOffset: 0, height: 192, minHeight: 90},
+                        options: {
+                            boundingRectangle: {height: 192},
+                            selectedOffset: 0,
+                            minHeight: 90
+                        },
                     }));
 
                     var location = select.getLocation();
@@ -234,7 +271,11 @@ describe(`Class Select.`, function() {
                     var select = new Select(this.getSettings({
                         viewport: {height: 300, edgeIndent: 10},
                         button: {top: 269, bottom: 289},
-                        options: {selectedOffset: 79, height: 100, minHeight: 90},
+                        options: {
+                            boundingRectangle: {height: 100},
+                            selectedOffset: 79,
+                            minHeight: 90
+                        },
                     }));
 
                     var location = select.getLocation();
@@ -251,7 +292,11 @@ describe(`Class Select.`, function() {
                     var select = new Select(this.getSettings({
                         viewport: {height: 300, edgeIndent: 10},
                         button: {top: 99, bottom: 201},
-                        options: {selectedOffset: 90, height: 282, minHeight: 90},
+                        options: {
+                            boundingRectangle: {height: 282},
+                            selectedOffset: 90,
+                            minHeight: 90
+                        },
                     }));
 
                     var location = select.getLocation();
@@ -260,32 +305,70 @@ describe(`Class Select.`, function() {
                     expect(location.boundingRectangle.bottom).toBe(10);
                 });
             });
-            
-            // describe(`both (top and bottom) case`, function() { // перші два теста - марні
-            //     beforeEach(function() {
-            //         var select = new Select(this.getSettings({
-            //             viewport: {
-            //                 height: 300,
-            //                 edgeIndent: 10
-            //             },
-            //
-            //             button: {top: 100},
-            //             options: {selectedOffset: 20},200,
-            //             optionListHeight: 500
-            //         }));
-            //
-            //         this.location = select.getLocation();
-            //     });
-            //    
-            //     it(`should set both sides to the predefined extrema positions`, function() {
-            //         expect(this.location.boundingRectangle.top).toBe(10);
-            //         expect(this.location.boundingRectangle.bottom).toBe(10);
-            //     });
-            //    
-            //     it(`should set 'scrollTop' depending on the selected option`, function() {
-            //         expect(this.location.scrollTop).toBe(110);
-            //     });
-            // });
+        });
+    });
+    
+    describe(`getScrollData:`, function() {
+        describe(`no overflow case -`, function() {
+            it(`should set 'distance' to 0`, function() {
+                var select = new Select(this.getSettings({
+                    viewport: {height: 300},
+                    button: {top: 100},
+                    options: {selectedOffset: 20, boundingRectangle: {bottom: 100}},
+                }));
+                
+                var scrollData = select.getScrollData(10);
+                
+                expect(scrollData.distance).toBe(0);
+            });
+        });
+        
+        describe(`both overflow case -`, function() {
+            it(`should set 'distance' to 'deltaY'`, function() {
+                var select = new Select(this.getSettings({
+                    viewport: {height: 300, edgeIndent: 10},
+                    button: {top: 100},
+                    options: {selectedOffset: 91, boundingRectangle: {bottom: 291}},
+                }));
+
+                var scrollData = select.getScrollData(10);
+
+                expect(scrollData.distance).toBe(10);
+            });
+        });
+
+        describe(`top overflow case,`, function() {
+            beforeEach(function() {
+                var select = new Select(this.getSettings({
+                    viewport: {height: 300, edgeIndent: 10},
+                    button: {top: 100},
+                    options: {selectedOffset: 100, boundingRectangle: {bottom: 280}},
+                }));
+
+                this.scrollData = select.getScrollData(-10);
+            });
+
+            it(`should set 'distance' to a new bottom position`, function() {
+                expect(this.scrollData.distance).toBe(10);
+            });
+
+            it(`should set 'edge' to 'bottom'`, function() {
+                expect(this.scrollData.edge).toBe('bottom');
+            });
+        });
+
+        describe(`bottom overflow case,`, function() {
+            describe(`scroll up -`, function() {
+                it(`should `, function() {
+
+                });
+            });
+
+            describe(`scroll down -`, function() {
+                it(`should `, function() {
+
+                });
+            });
         });
     });
 });

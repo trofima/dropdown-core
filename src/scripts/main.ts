@@ -32,14 +32,15 @@ export interface Viewport {
 }
 
 export interface BoundingRectangle {
-    left:number,
-    top:number,
-    bottom:number,
-    width:number,
+    left?:number,
+    top?:number,
+    bottom?:number,
+    height?:number,
+    width?:number,
 }
 
 export interface OptionSettings {
-    height:number,
+    boundingRectangle:BoundingRectangle,
     minHeight:number,
     selectedOffset:number,
 }
@@ -51,14 +52,13 @@ export interface DropdownSettings {
 }
 
 export interface OptionsLocation {
-    boundingRectangle: BoundingRectangle,
+    boundingRectangle:BoundingRectangle,
     scrollTop:number,
 }
 
-// hack interface to prevent strange ts compiler bug with computed property names
-interface VerticalPositions {
-    top?:number,
-    bottom?:number,
+interface ScrollData {
+    distance:number,
+    edge?:string,
 }
 
 // export class Dropdown {
@@ -82,6 +82,11 @@ export class OptionsHTML {
     constructor({screenEdgeIndent = 10, minHeight = 180}) {
         this.node = document.getElementById('dropdown-options');
         this.node.innerHTML = this.render();
+
+        this.node.querySelector('.options').addEventListener('wheel', (e) => {
+            console.log(e);
+        });
+
         this.options = new Options({
             node: this.node,
             screenEdgeIndent: screenEdgeIndent,
@@ -122,7 +127,7 @@ export class Options {
         this.minHeight = minHeight;
     }
 
-    protected open({type, location, selectedIndex}) {
+    open({type, location, selectedIndex}) {
         this.options = new Select({
             viewport: {
                 height: document.documentElement.clientHeight,
@@ -131,7 +136,7 @@ export class Options {
             },
 
             options: {
-                height: this.getOptionListNode().offsetHeight,
+                boundingRectangle: this.getOptionListNode().getBoundingClientRect(),
                 minHeight: this.minHeight,
                 selectedOffset: this.getOptionNode(selectedIndex).offsetTop,
             },
@@ -144,7 +149,7 @@ export class Options {
         for (var name in location.boundingRectangle) {
             this.node.querySelector('.options').style.setProperty(name, location.boundingRectangle[name] + 'px');
         }
-        
+
         this.getOptionListNode().scrollTop = location.scrollTop;
     };
 
@@ -175,13 +180,16 @@ export class Select {
 
     getLocation():OptionsLocation {
         var baseTop = this.button.top - this.options.selectedOffset;
-        var baseBottom = this.viewport.height - baseTop - this.options.height;
+        var baseBottom =
+            this.viewport.height - baseTop - this.options.boundingRectangle.height;
         var verticalPositions = this.getVerticalPosition(baseTop, baseBottom);
 
 
         return {
             boundingRectangle: {
                 top: verticalPositions.top,
+                // the only case where distance is FROM BOTTOM OF THE SCREEN to element
+                // and not the bottom edge Y position of the element (from screen top)
                 bottom: verticalPositions.bottom,
                 left: this.button.left,
                 width: this.button.width,
@@ -191,11 +199,34 @@ export class Select {
         };
     }
 
+    getScrollData(deltaY):ScrollData {
+        var currentBottom = this.viewport.height - this.options.boundingRectangle.bottom;
+
+        if (this.hasOverflow(currentBottom)
+            && this.hasOverflow(this.options.boundingRectangle.top)) {
+
+            return {
+                distance: deltaY
+            };
+        }
+
+        if (this.hasOverflow(this.options.boundingRectangle.top)) {
+            return {
+                distance: currentBottom + deltaY,
+                edge: 'bottom',
+            };
+        }
+
+        return {
+            distance: 0
+        };
+    }
+
     private viewport:Viewport;
     private options:OptionSettings;
     private button:BoundingRectangle;
 
-    private getVerticalPosition(baseTop, baseBottom):VerticalPositions {
+    private getVerticalPosition(baseTop, baseBottom):BoundingRectangle {
         var hasTopOverflow = this.hasOverflow(baseTop);
         var hasBottomOverflow = this.hasOverflow(baseBottom);
 
@@ -213,7 +244,7 @@ export class Select {
         return {
             top: baseTop,
             bottom: baseBottom,
-        }
+        };
     }
 
     private getScrollTop(baseTop):number {
@@ -222,7 +253,7 @@ export class Select {
             : 0;
     }
 
-    private getOverflowedPosition(currentSideName, baseValues):VerticalPositions {
+    private getOverflowedPosition(currentSideName, baseValues):BoundingRectangle {
         var sideMirrorMap = {
             top: 'bottom',
             bottom: 'top',
@@ -244,7 +275,7 @@ export class Select {
             : this.viewport.height - this.button.top - this.viewport.edgeIndent;
     }
 
-    private getSmallModePosition(currentSideName, oppositeSideName):VerticalPositions {
+    private getSmallModePosition(currentSideName, oppositeSideName):BoundingRectangle {
         var currentSidePosition =
             this['gerSmallMode' + this.capitalize(currentSideName)](currentSideName);
         var oppositeSidePosition =
@@ -261,7 +292,7 @@ export class Select {
     private gerSmallModeTop(currentSide):number {
         var calculateFor = {
             top: () => this.button.bottom,
-            bottom: () => this.button.top - this.options.height
+            bottom: () => this.button.top - this.options.boundingRectangle.height,
         };
 
         return calculateFor[currentSide]();
@@ -269,7 +300,7 @@ export class Select {
 
     private gerSmallModeBottom(currentSide):number {
         var calculateFor = {
-            top: () => this.viewport.height - this.button.bottom - this.options.height,
+            top: () => this.viewport.height - this.button.bottom - this.options.boundingRectangle.height,
             bottom: () => this.viewport.height - this.button.top,
         };
 
