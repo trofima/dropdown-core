@@ -112,10 +112,10 @@
     ];
 
     var ddLocation = {
-        top: 100,
+        top: 300,
         left: 100,
         width: 200,
-        bottom: 132
+        height: 32
     };
 
     var dd = document.getElementById('dd');
@@ -132,7 +132,7 @@
     optionsHTML.open({
         type: 'select',
         options: options,
-        location: ddLocation,
+        location: dd.getBoundingClientRect(),
         selectedIndex: 4
     });
 </script>
