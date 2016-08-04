@@ -79,23 +79,3 @@ gulp
     .task('build', ['build-js', 'build-css', 'declare-ts'])
     
     .task('default', ['build']);
-
-// TODO: remove
-//
-// var email = require('gulp-email');
-//
-// var options = {
-//     user: 'api:key-3ax6xnjp29jd6fds4gc373sgvjxteol0',
-//     url: 'https://api.mailgun.net/v3/samples.mailgun.org/messages',
-//     form: {
-//         from: 'John Doe <John.Doe@gmail.com>',
-//         to: 'Serhii Trofimets <sergeyt@wix.com>',
-//         subject: 'The last dist'
-//     }
-// };
-//
-// gulp.task('mail', function(){
-//
-//     return gulp.src('migration-test-drive-done-html-email.html')
-//         .pipe(email(options));
-// });
